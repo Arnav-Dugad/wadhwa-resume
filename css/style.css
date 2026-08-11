@@ -417,9 +417,10 @@ kbd{
   transform-style:preserve-3d;
   will-change:transform;
 }
+/* matches the shader's PAPER constant so the plate has no visible seam */
 .portrait__crop{
   position:relative; overflow:hidden;
-  aspect-ratio:1/1; background:var(--paper-lo);
+  aspect-ratio:1/1; background:var(--paper);
   clip-path:inset(0 0 100% 0);
 }
 .portrait.is-in .portrait__crop{
@@ -649,6 +650,37 @@ kbd{
   transition:background-color .45s var(--ease), border-color .45s var(--ease), transform .45s var(--ease);
 }
 .station.is-lit .station__node i{ background:var(--accent); border-color:var(--accent); transform:scale(1.15); }
+
+/* ── ORG LOGOS ──────────────────────────────────────────
+   Real marks, held back to ink-grey so they never fight the
+   palette, then released to full colour on hover.
+   ─────────────────────────────────────────────────────── */
+.orglogo{
+  height:32px; margin-bottom:14px;
+  display:flex; align-items:center;
+}
+.orglogo img{
+  max-height:32px; max-width:158px; width:auto; height:auto;
+  object-fit:contain; object-position:left center;
+  filter:grayscale(1) contrast(1.08);
+  opacity:.55;
+  transition:filter .55s var(--ease), opacity .55s var(--ease), transform .55s var(--ease);
+}
+.station:hover .orglogo img,
+.edu:hover .orglogo img,
+.orglogo img:hover{ filter:none; opacity:1; transform:translateY(-1px); }
+
+/* fallback monogram for orgs with no published mark */
+.orglogo--mark span{
+  display:grid; place-items:center;
+  width:32px; height:32px;
+  border:1px solid var(--rule-hard);
+  font-family:var(--serif); font-size:.92rem; letter-spacing:.03em;
+  color:var(--ink-3);
+  transition:border-color .5s var(--ease), color .5s var(--ease), background-color .5s var(--ease);
+}
+.station:hover .orglogo--mark span,
+.edu:hover .orglogo--mark span{ border-color:var(--accent); color:var(--accent); }
 
 .station__when{ color:var(--ink-4); margin-bottom:10px; }
 .station__org{
@@ -901,6 +933,23 @@ kbd{
   transition-delay:calc(var(--i,0) * 80ms);
 }
 .certs__n{ color:var(--accent); padding-top:4px; flex:none; }
+.certlogo{
+  flex:none; width:74px; height:30px; display:grid; place-items:center;
+  align-self:flex-start; margin-top:-1px;
+}
+.certlogo img{
+  max-width:74px; max-height:26px; width:auto; height:auto; object-fit:contain;
+  filter:grayscale(1) contrast(1.08); opacity:.55;
+  transition:filter .5s var(--ease), opacity .5s var(--ease);
+}
+.certs li:hover .certlogo img{ filter:none; opacity:1; }
+.certlogo--mark b{
+  display:grid; place-items:center; width:30px; height:30px;
+  border:1px solid var(--rule-hard); font-family:var(--serif);
+  font-weight:400; font-size:.84rem; color:var(--ink-3);
+  transition:border-color .5s var(--ease), color .5s var(--ease);
+}
+.certs li:hover .certlogo--mark b{ border-color:var(--accent); color:var(--accent); }
 .certs li b{ display:block; font-weight:500; font-size:1.02rem; letter-spacing:-.005em; }
 .certs li em{ display:block; font-style:normal; color:var(--ink-4); font-size:.88rem; margin-top:2px; }
 .certs li::after{

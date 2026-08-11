@@ -98,7 +98,7 @@ const Loader = (() => {
     new Promise(res => {
       const img = new Image();
       img.onload = img.onerror = res;
-      img.src = window.__PORTRAIT__ || 'assets/aditya.jpg';
+      img.src = window.__PORTRAIT__ || 'assets/portrait.jpg';
     })
   ]);
   Promise.race([assets, new Promise(res => setTimeout(res, 2600))])
@@ -183,162 +183,290 @@ function splitFooterChars() {
 }
 
 /* ══════════════════════════════════════════════════════════
-   HALFTONE PORTRAIT
-   A dot-matrix re-render of the photo. Dots swell and scatter
-   around the pointer — a nod to machine-vision sampling.
+   HALFTONE PORTRAIT — WebGL CMYK process screen
+
+   The photo is separated into cyan / magenta / yellow / black and
+   each separation is screened on its own classic offset angle
+   (15° / 75° / 0° / 45°), then recombined subtractively over the
+   paper. That is how the plate keeps the photograph's real colour
+   while still reading as printed matter rather than a JPEG.
+
+   The pointer drives a displacement field — radial push, tangential
+   swirl and a travelling ripple — plus per-separation chromatic
+   aberration and a local increase in screen frequency.
+
+   Falls back to a 2D canvas colour screen where WebGL is missing.
    ══════════════════════════════════════════════════════════ */
 const Halftone = (() => {
   const cv = $('#halftone');
-  if (!cv) return { tick() {} };
-  const ctx = cv.getContext('2d', { alpha: true });
+  if (!cv) return { tick() {}, rebuild() {} };
   const host = $('#portrait');
+  const SRC = window.__PORTRAIT__ || 'assets/portrait.jpg';
 
-  const COLS = 76;                       // dot grid resolution
-  const CROP = { x: 50, y: 6, s: 146 };  // square crop framing the subject in the 200px source
-  let cells = [], size = 0, cell = 0, dpr = 1, loaded = false, visible = false;
-  const pointer = { x: -999, y: -999, tx: -999, ty: -999, strength: 0, tStrength: 0 };
-  let t = 0;
+  const ptr = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, amt: 0, tAmt: 0 };
+  let impl = null, visible = false, t = 0, size = 0, dpr = 1;
 
   const img = new Image();
-  img.onload = () => { loaded = true; build(); };
-  img.src = window.__PORTRAIT__ || 'assets/aditya.jpg';
+  img.onload = () => { impl = initGL() || init2D(); resize(); };
+  img.src = SRC;
 
-  function build() {
-    if (!loaded) return;
-    const rect = cv.getBoundingClientRect();
-    size = Math.max(1, Math.round(rect.width));
+  function resize() {
+    const r = cv.getBoundingClientRect();
+    size = Math.max(1, Math.round(r.width));
     dpr = Math.min(devicePixelRatio || 1, 2);
-    cv.width = size * dpr;
-    cv.height = size * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cell = size / COLS;
-
-    // sample the cropped source at grid resolution
-    const off = document.createElement('canvas');
-    off.width = off.height = COLS;
-    const octx = off.getContext('2d', { willReadFrequently: true });
-    octx.drawImage(img, CROP.x, CROP.y, CROP.s, CROP.s, 0, 0, COLS, COLS);
-
-    let data;
-    try { data = octx.getImageData(0, 0, COLS, COLS).data; }
-    catch (e) { cv.style.backgroundImage = `url(${img.src})`; cv.style.backgroundSize = 'cover'; return; }
-
-    // brightness range, for contrast normalisation
-    let lo = 1, hi = 0;
-    const lum = new Float32Array(COLS * COLS);
-    for (let i = 0; i < COLS * COLS; i++) {
-      const p = i * 4;
-      const l = (0.299 * data[p] + 0.587 * data[p + 1] + 0.114 * data[p + 2]) / 255;
-      lum[i] = l; if (l < lo) lo = l; if (l > hi) hi = l;
-    }
-    const span = Math.max(0.001, hi - lo);
-    const smoothstep = (e0, e1, v) => {
-      const t = clamp((v - e0) / (e1 - e0), 0, 1);
-      return t * t * (3 - 2 * t);
-    };
-
-    cells = [];
-    for (let y = 0; y < COLS; y++) {
-      for (let x = 0; x < COLS; x++) {
-        const i = y * COLS + x;
-        const norm = (lum[i] - lo) / span;
-        let dark = Math.pow(1 - norm, 1.25);       // 0 = light, 1 = dark
-
-        // Elliptical vignette centred on the face: the room falls away and the
-        // subject floats on the paper instead of sitting in a black slab.
-        const nx = (x + 0.5) / COLS - 0.5;
-        const ny = (y + 0.5) / COLS - 0.46;
-        const rad = Math.sqrt(nx * nx + (ny * 0.82) * (ny * 0.82));
-        dark *= 1 - smoothstep(0.30, 0.56, rad);
-
-        if (dark < 0.05) continue;                  // skip near-white — keeps the plate airy
-        cells.push({
-          cx: (x + 0.5) * cell,
-          cy: (y + 0.5) * cell,
-          r: dark * cell * 0.56,                    // stay under the cell pitch: dots never fuse
-          dark,
-          ox: 0, oy: 0, rr: 0,
-          ph: (x * 0.35 + y * 0.5)
-        });
-      }
-    }
+    cv.width = Math.round(size * dpr);
+    cv.height = Math.round(size * dpr);
+    impl && impl.resize();
   }
 
-  function draw() {
-    if (!cells.length) return;
-    ctx.clearRect(0, 0, size, size);
+  /* ── screen frequency: ~118 dots across the plate ── */
+  const pitchFor = () => Math.max(2.5, size / 118);
 
-    pointer.x = lerp(pointer.x, pointer.tx, 0.16);
-    pointer.y = lerp(pointer.y, pointer.ty, 0.16);
-    pointer.strength = lerp(pointer.strength, pointer.tStrength, 0.09);
+  /* ────────────────────────── WebGL ────────────────────────── */
+  function initGL() {
+    let gl;
+    try {
+      gl = cv.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false })
+        || cv.getContext('experimental-webgl', { alpha: false, antialias: false });
+    } catch (e) { return null; }
+    if (!gl) return null;
 
-    const R = size * 0.30, R2 = R * R;
-    const s = pointer.strength;
+    const VERT = `
+      attribute vec2 aPos;
+      varying vec2 vUv;
+      void main(){ vUv = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }`;
 
-    for (let i = 0; i < cells.length; i++) {
-      const c = cells[i];
-      let dx = 0, dy = 0, grow = 0, heat = 0;
+    const FRAG = `
+      precision highp float;
+      varying vec2 vUv;
+      uniform sampler2D uTex;
+      uniform vec2  uRes;     // plate size, CSS px
+      uniform vec2  uPtr;     // pointer, CSS px, y down
+      uniform float uAmt;     // pointer influence 0..1
+      uniform float uTime;
+      uniform float uPitch;   // screen pitch, CSS px
 
-      if (s > 0.01) {
-        const vx = c.cx - pointer.x, vy = c.cy - pointer.y;
-        const d2 = vx * vx + vy * vy;
-        if (d2 < R2) {
-          const d = Math.sqrt(d2) || 0.001;
-          const f = (1 - d / R);
-          const fe = f * f;
-          dx = (vx / d) * fe * cell * 2.6 * s;
-          dy = (vy / d) * fe * cell * 2.6 * s;
-          grow = fe * cell * 0.42 * s;
-          heat = fe * s;
+      const vec3 PAPER = vec3(0.9569, 0.9451, 0.9255);
+      const vec3 INK_C = vec3(0.00, 0.66, 0.93);
+      const vec3 INK_M = vec3(0.92, 0.11, 0.54);
+      const vec3 INK_Y = vec3(1.00, 0.93, 0.11);
+      const vec3 INK_K = vec3(0.07, 0.08, 0.09);
+
+      vec2 rot(vec2 p, float a){
+        float c = cos(a), s = sin(a);
+        return vec2(c * p.x - s * p.y, s * p.x + c * p.y);
+      }
+
+      // elliptical vignette so the room dissolves into the paper
+      float vign(vec2 uv){
+        vec2 q = uv - vec2(0.5, 0.44);
+        q.y *= 0.88;
+        return 1.0 - smoothstep(0.29, 0.52, length(q));
+      }
+
+      vec4 toCMYK(vec3 rgb){
+        float k = 1.0 - max(max(rgb.r, rgb.g), rgb.b);
+        float d = 1.0 - k;
+        vec3 cmy = d > 0.001 ? (vec3(1.0) - rgb - k) / d : vec3(0.0);
+        return vec4(clamp(cmy, 0.0, 1.0), k);
+      }
+
+      // one separation: snap to its rotated grid, size the dot from the
+      // ink value sampled at that cell's centre, return coverage 0..1
+      float screenDot(vec2 px, float angle, float pitch, int idx, vec2 aberr){
+        vec2 rp   = rot(px, angle) / pitch;
+        vec2 cell = floor(rp) + 0.5;
+        vec2 uv   = (rot(cell * pitch, -angle) + aberr) / uRes;
+        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) return 0.0;
+
+        vec3 rgb = texture2D(uTex, uv).rgb;
+        rgb = clamp((rgb - 0.5) * 1.09 + 0.5, 0.0, 1.0);              // press contrast
+        float l = dot(rgb, vec3(0.299, 0.587, 0.114));
+        rgb = clamp(mix(vec3(l), rgb, 1.16), 0.0, 1.0);               // ink saturation
+
+        vec4 cmyk = toCMYK(rgb);
+        float v = idx == 0 ? cmyk.x : idx == 1 ? cmyk.y : idx == 2 ? cmyk.z : cmyk.w;
+        v *= vign(uv);
+        if (v <= 0.002) return 0.0;
+
+        float r  = sqrt(v) * 0.78;          // area-proportional dot
+        float d  = length(rp - cell);
+        float aa = 0.85 / pitch;
+        return smoothstep(r + aa, r - aa, d);
+      }
+
+      void main(){
+        vec2 sc = vec2(vUv.x, 1.0 - vUv.y);   // y down
+        vec2 px = sc * uRes;
+
+        // ── displacement field around the pointer ──
+        vec2  d     = px - uPtr;
+        float dist  = length(d);
+        vec2  dir   = dist > 0.001 ? d / dist : vec2(0.0);
+        // A tight lens, not a global warp: the falloff has to bottom out well
+        // inside the plate so the portrait stays legible everywhere else.
+        float sigma = uRes.x * 0.155;
+        float infl  = exp(-(dist * dist) / (2.0 * sigma * sigma)) * uAmt;
+        float ripple = sin(dist * 0.085 - uTime * 3.2) * infl;
+
+        px += dir * (infl * uRes.x * 0.020 + ripple * uRes.x * 0.007)
+            + vec2(-dir.y, dir.x) * infl * uRes.x * 0.009;
+
+        // breathing so the plate is never perfectly still
+        px += vec2(sin(uTime * 0.6 + sc.y * 6.0), cos(uTime * 0.5 + sc.x * 6.0)) * 0.6;
+
+        float pitch = uPitch * (1.0 - infl * 0.22);
+        vec2  ab    = dir * infl * 4.5;      // chromatic aberration, px
+
+        float c = screenDot(px, 0.2618, pitch, 0,  ab);
+        float m = screenDot(px, 1.3090, pitch, 1, -ab * 0.60);
+        float y = screenDot(px, 0.0,    pitch, 2,  ab * 0.28);
+        float k = screenDot(px, 0.7854, pitch, 3, -ab * 0.16);
+
+        vec3 col = PAPER;
+        col *= mix(vec3(1.0), INK_C, c);
+        col *= mix(vec3(1.0), INK_M, m);
+        col *= mix(vec3(1.0), INK_Y, y);
+        col *= mix(vec3(1.0), INK_K, k);
+
+        gl_FragColor = vec4(col, 1.0);
+      }`;
+
+    const compile = (type, src) => {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        console.warn('halftone shader:', gl.getShaderInfoLog(s)); return null;
+      }
+      return s;
+    };
+    const vs = compile(gl.VERTEX_SHADER, VERT), fs = compile(gl.FRAGMENT_SHADER, FRAG);
+    if (!vs || !fs) return null;
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }
+    catch (e) { return null; }                       // tainted canvas → fall back
+
+    const U = n => gl.getUniformLocation(prog, n);
+    const uRes = U('uRes'), uPtr = U('uPtr'), uAmt = U('uAmt'),
+          uTime = U('uTime'), uPitch = U('uPitch');
+    gl.uniform1i(U('uTex'), 0);
+
+    return {
+      kind: 'webgl',
+      resize() { gl.viewport(0, 0, cv.width, cv.height); },
+      draw(time) {
+        gl.uniform2f(uRes, size, size);
+        gl.uniform2f(uPtr, ptr.x, ptr.y);
+        gl.uniform1f(uAmt, ptr.amt);
+        gl.uniform1f(uTime, time);
+        gl.uniform1f(uPitch, pitchFor());
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+    };
+  }
+
+  /* ──────────────────── 2D colour fallback ──────────────────── */
+  function init2D() {
+    const ctx = cv.getContext('2d');
+    let cells = [], cell = 0;
+
+    function build() {
+      const COLS = Math.max(24, Math.round(size / 5.2));
+      cell = size / COLS;
+      const off = document.createElement('canvas');
+      off.width = off.height = COLS;
+      const octx = off.getContext('2d', { willReadFrequently: true });
+      octx.drawImage(img, 0, 0, COLS, COLS);
+      let data;
+      try { data = octx.getImageData(0, 0, COLS, COLS).data; }
+      catch (e) { cv.style.cssText += `background:url(${SRC}) center/cover`; return; }
+
+      const smooth = (a, b, v) => { const x = clamp((v - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+      cells = [];
+      for (let y = 0; y < COLS; y++) for (let x = 0; x < COLS; x++) {
+        const p = (y * COLS + x) * 4;
+        const r = data[p], g = data[p + 1], b = data[p + 2];
+        const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        const nx = (x + 0.5) / COLS - 0.5, ny = (y + 0.5) / COLS - 0.44;
+        const vig = 1 - smooth(0.30, 0.55, Math.hypot(nx, ny * 0.88));
+        const ink = Math.pow(1 - lum, 1.1) * vig;
+        if (ink < 0.04) continue;
+        cells.push({ cx: (x + 0.5) * cell, cy: (y + 0.5) * cell, r: ink * cell * 0.60,
+                     col: `rgb(${r},${g},${b})`, ox: 0, oy: 0 });
+      }
+    }
+
+    return {
+      kind: '2d',
+      resize() { build(); },
+      draw() {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, size, size);
+        const R = size * 0.30, R2 = R * R;
+        for (const c of cells) {
+          let dx = 0, dy = 0;
+          if (ptr.amt > 0.01) {
+            const vx = c.cx - ptr.x, vy = c.cy - ptr.y, d2 = vx * vx + vy * vy;
+            if (d2 < R2) {
+              const d = Math.sqrt(d2) || 0.001, f = (1 - d / R) ** 2;
+              dx = (vx / d) * f * cell * 2.4 * ptr.amt;
+              dy = (vy / d) * f * cell * 2.4 * ptr.amt;
+            }
+          }
+          c.ox = lerp(c.ox, dx, 0.18); c.oy = lerp(c.oy, dy, 0.18);
+          ctx.fillStyle = c.col;
+          ctx.beginPath();
+          ctx.arc(c.cx + c.ox, c.cy + c.oy, c.r, 0, 6.2832);
+          ctx.fill();
         }
       }
-
-      // idle breathing wave, so the plate is never fully still
-      const wave = Math.sin(t * 0.9 + c.ph) * 0.5 + 0.5;
-      const wr = wave * cell * 0.045 * c.dark;
-
-      c.ox = lerp(c.ox, dx, 0.18);
-      c.oy = lerp(c.oy, dy, 0.18);
-      c.rr = lerp(c.rr, grow, 0.18);
-
-      const r = Math.max(0.15, c.r + c.rr + wr);
-      if (heat > 0.02) {
-        const m = clamp(heat * 1.35, 0, 1);
-        ctx.fillStyle = `rgb(${Math.round(20 + 180 * m)},${Math.round(22 + 46 * m)},${Math.round(26 + 16 * m)})`;
-      } else {
-        ctx.fillStyle = '#14161A';
-      }
-      ctx.beginPath();
-      ctx.arc(c.cx + c.ox, c.cy + c.oy, r, 0, 6.2832);
-      ctx.fill();
-    }
+    };
   }
 
+  /* ──────────────────────── driver ──────────────────────── */
   function tick(dt) {
-    if (!loaded || !visible) return;
+    if (!impl || !visible) return;
     t += dt;
-    draw();
+    ptr.x = lerp(ptr.x, ptr.tx, 0.14);
+    ptr.y = lerp(ptr.y, ptr.ty, 0.14);
+    ptr.amt = lerp(ptr.amt, ptr.tAmt, 0.075);
+    impl.draw(t);
   }
 
-  // pointer wiring
   if (host) {
     host.addEventListener('pointermove', e => {
       const r = cv.getBoundingClientRect();
-      pointer.tx = e.clientX - r.left;
-      pointer.ty = e.clientY - r.top;
-      pointer.tStrength = 1;
+      if (ptr.tAmt === 0) { ptr.x = ptr.tx = e.clientX - r.left; ptr.y = ptr.ty = e.clientY - r.top; }
+      ptr.tx = e.clientX - r.left;
+      ptr.ty = e.clientY - r.top;
+      ptr.tAmt = 1;
     });
-    host.addEventListener('pointerleave', () => { pointer.tStrength = 0; });
+    host.addEventListener('pointerleave', () => { ptr.tAmt = 0; });
   }
-
-  addEventListener('resize', () => { build(); });
-
+  addEventListener('resize', resize);
   if ('IntersectionObserver' in window) {
-    new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: 0.01 })
-      .observe(cv);
+    new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: 0.01 }).observe(cv);
   } else visible = true;
 
-  return { tick, rebuild: build };
+  return { tick, rebuild: resize, get mode() { return impl ? impl.kind : 'none'; } };
 })();
 
 /* ══════════════════════════════════════════════════════════

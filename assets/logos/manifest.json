@@ -1,0 +1,87 @@
+{
+  "havells": {
+    "file": "havells.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/5/57/Havells_Logo.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Havells Logo.svg"
+  },
+  "lg": {
+    "file": "lg.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/8/8d/LG_logo_%282014%29.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:LG logo (2014).svg"
+  },
+  "iitdelhi": {
+    "file": "iitdelhi.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/en/b/b6/IIT_Delhi_Wordmark_logo.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:IIT Delhi Wordmark logo.svg"
+  },
+  "manipal": {
+    "file": "manipal.png",
+    "source": "https://upload.wikimedia.org/wikipedia/en/b/be/Manipal_Tech_new_logo.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Manipal Tech new logo.png"
+  },
+  "umich": {
+    "file": "umich.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/c/c1/University_of_Michigan_logo.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:University of Michigan logo.svg"
+  },
+  "rice": {
+    "file": "rice.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/en/7/7d/Rice_Logo_280_Blue.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Rice Logo 280 Blue.svg"
+  },
+  "macquarie": {
+    "file": "macquarie.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/en/7/71/Logotype_of_Macquarie_University.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Logotype of Macquarie University.svg"
+  },
+  "tcs": {
+    "file": "tcs.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Tata_logo.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Tata logo.svg"
+  },
+  "unity": {
+    "file": "unity.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Unity_2021.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Unity 2021.svg"
+  },
+  "matlab": {
+    "file": "matlab.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Wikibooks-logo.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Wikibooks-logo.svg"
+  },
+  "solidworks": {
+    "file": "solidworks.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/b/bf/SOLIDWORKS_Logo.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:SOLIDWORKS Logo.svg"
+  },
+  "ros": {
+    "file": "ros.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/3/31/Free_and_open-source_software_logo_%282009%29.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Free and open-source software logo (2009).svg"
+  },
+  "opencv": {
+    "file": "opencv.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/3/31/Free_and_open-source_software_logo_%282009%29.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Free and open-source software logo (2009).svg"
+  },
+  "arduino": {
+    "file": "arduino.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Arduino_Logo_Registered.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Arduino Logo Registered.svg"
+  },
+  "python": {
+    "file": "python.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/3/31/Free_and_open-source_software_logo_%282009%29.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Free and open-source software logo (2009).svg"
+  },
+  "powerbi": {
+    "file": "powerbi.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/en/2/20/Power_BI_logo.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Power BI logo.svg"
+  },
+  "dixon": {
+    "file": "dixon.svg",
+    "source": "https://upload.wikimedia.org/wikipedia/en/2/20/Dixon_Technologies_Logo.svg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original",
+    "wikiFile": "File:Dixon Technologies Logo.svg"
+  }
+}

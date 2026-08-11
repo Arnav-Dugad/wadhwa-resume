@@ -23,7 +23,9 @@ behaves like printed stock instead of a flat screen.
 
 | Feature | Where | What it does |
 |---|---|---|
-| **Halftone portrait** | `js/main.js` → `Halftone` | Re-renders the photo as a live dot matrix on canvas. Dots scatter and swell around the pointer and warm toward vermillion — a nod to machine-vision sampling. |
+| **CMYK halftone portrait** | `js/main.js` → `Halftone` | A WebGL fragment shader separates the photo into cyan/magenta/yellow/black and screens each on its own classic offset angle (15° / 75° / 0° / 45°), recombining them subtractively over the paper. Keeps the photograph's real colour while reading as printed matter. |
+| **Fluid pointer lens** | same shader | The pointer drives a displacement field — radial push, tangential swirl, travelling ripple — plus per-separation chromatic aberration and a local rise in screen frequency. Degrades to a 2D canvas colour screen where WebGL is missing. |
+| **Org logos** | `.orglogo` / `.certlogo` | Employer, university and certification marks held back to ink-grey so they never fight the palette, released to full colour on hover. Orgs with no published mark get a typographic monogram in the same rhythm. |
 | **Blueprint backdrop** | `Blueprint` | Canvas drafting grid with drifting construction circles, a sweeping radius line and a corner datum. Parallaxes to the pointer. |
 | **Smooth scroll** | `Scroll` | Transform-based lerped scrolling. All fixed chrome lives outside `<main>` so it is unaffected. |
 | **Assembly-line timeline** | `#work` | Experience as stations on a line; a rail fills and a carrier travels as you scroll, lighting each node. |
@@ -35,13 +37,22 @@ behaves like printed stock instead of a flat screen.
 
 ## Notes on the portrait
 
-The source photograph is 200×200. Rather than upscale it into mush, the site samples it into a
-76×76 dot grid, crops to the subject, normalises contrast, and applies an elliptical vignette so
-he floats on the paper instead of sitting in the room's dark wall. The resolution limit becomes
-the art direction.
+The plate is a real four-colour process screen, not a filter. Each separation snaps to its own
+rotated grid; the dot at each cell is sized from the ink value sampled at that cell's centre, so
+dot area is proportional to ink coverage the way it is on press. The four angles interfere into
+the rosette pattern you get from offset printing. An elliptical vignette dissolves the room into
+the paper so the subject floats rather than sitting in a dark slab.
 
-The image is inlined as a base64 data URI in `js/portrait.js` so `getImageData` never trips the
-canvas-tainting rules — the page works opened straight from the filesystem, no server needed.
+`assets/portrait.jpg` (860 px) is the social-preview image. A 600 px copy is inlined as a base64
+data URI in `js/portrait.js` so texture upload never trips the canvas-tainting rules — the page
+works opened straight from the filesystem, no server needed. 600 px is ample: the screen samples
+roughly 118 dots across, so a larger texture would be thrown away.
+
+## Logos
+
+Fetched from Wikimedia via the MediaWiki API and committed to `assets/logos/`. Avendus Capital,
+Gyan Bharati School and Impact Guru have no retrievable published mark, so they get typographic
+monograms instead — deliberate, and consistent with everything around them.
 
 ## Accessibility & resilience
 

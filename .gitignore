@@ -3,3 +3,7 @@ Thumbs.db
 desktop.ini
 node_modules/
 *.log
+
+# large local source imagery (the 860px assets/portrait.jpg is what the site uses)
+ChatGPT Image*.png
+assets/*upscayl*
