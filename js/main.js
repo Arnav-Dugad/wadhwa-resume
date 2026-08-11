@@ -271,6 +271,13 @@ const Halftone = (() => {
         return vec4(clamp(cmy, 0.0, 1.0), k);
       }
 
+      // the press look: a little more contrast, a little more ink
+      vec3 press(vec3 rgb){
+        rgb = clamp((rgb - 0.5) * 1.09 + 0.5, 0.0, 1.0);
+        float l = dot(rgb, vec3(0.299, 0.587, 0.114));
+        return clamp(mix(vec3(l), rgb, 1.16), 0.0, 1.0);
+      }
+
       // one separation: snap to its rotated grid, size the dot from the
       // ink value sampled at that cell's centre, return coverage 0..1
       float screenDot(vec2 px, float angle, float pitch, int idx, vec2 aberr){
@@ -279,12 +286,7 @@ const Halftone = (() => {
         vec2 uv   = (rot(cell * pitch, -angle) + aberr) / uRes;
         if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) return 0.0;
 
-        vec3 rgb = texture2D(uTex, uv).rgb;
-        rgb = clamp((rgb - 0.5) * 1.09 + 0.5, 0.0, 1.0);              // press contrast
-        float l = dot(rgb, vec3(0.299, 0.587, 0.114));
-        rgb = clamp(mix(vec3(l), rgb, 1.16), 0.0, 1.0);               // ink saturation
-
-        vec4 cmyk = toCMYK(rgb);
+        vec4 cmyk = toCMYK(press(texture2D(uTex, uv).rgb));
         float v = idx == 0 ? cmyk.x : idx == 1 ? cmyk.y : idx == 2 ? cmyk.z : cmyk.w;
         v *= vign(uv);
         if (v <= 0.002) return 0.0;
@@ -318,18 +320,32 @@ const Halftone = (() => {
         float pitch = uPitch * (1.0 - infl * 0.22);
         vec2  ab    = dir * infl * 4.5;      // chromatic aberration, px
 
+        vec2  duv = clamp(px / uRes, 0.0, 1.0);
+        float vg  = vign(duv);
+
+        // ── continuous tone: the plate at rest ──
+        vec3 tone = mix(PAPER, press(texture2D(uTex, duv).rgb), vg);
+
+        // ── screened: the plate under the loupe ──
         float c = screenDot(px, 0.2618, pitch, 0,  ab);
         float m = screenDot(px, 1.3090, pitch, 1, -ab * 0.60);
         float y = screenDot(px, 0.0,    pitch, 2,  ab * 0.28);
         float k = screenDot(px, 0.7854, pitch, 3, -ab * 0.16);
 
-        vec3 col = PAPER;
-        col *= mix(vec3(1.0), INK_C, c);
-        col *= mix(vec3(1.0), INK_M, m);
-        col *= mix(vec3(1.0), INK_Y, y);
-        col *= mix(vec3(1.0), INK_K, k);
+        vec3 dots = PAPER;
+        dots *= mix(vec3(1.0), INK_C, c);
+        dots *= mix(vec3(1.0), INK_M, m);
+        dots *= mix(vec3(1.0), INK_Y, y);
+        dots *= mix(vec3(1.0), INK_K, k);
 
-        gl_FragColor = vec4(col, 1.0);
+        // The screen blooms outward from the pointer rather than cross-fading
+        // flat, so it reads as a loupe travelling over the stock. At uAmt = 1
+        // the radius clears the far corner and the whole plate is screened.
+        float radius  = uAmt * uRes.x * 2.10;
+        float feather = uRes.x * 0.38;
+        float reveal  = smoothstep(radius, radius - feather, dist);
+
+        gl_FragColor = vec4(mix(tone, dots, reveal), 1.0);
       }`;
 
     const compile = (type, src) => {
@@ -419,24 +435,55 @@ const Halftone = (() => {
       resize() { build(); },
       draw() {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, size, size);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#F4F1EC';
+        ctx.fillRect(0, 0, size, size);
+
+        // continuous tone at rest, vignetted into the paper
+        ctx.drawImage(img, 0, 0, size, size);
+        const vg = ctx.createRadialGradient(size * 0.5, size * 0.44, size * 0.26,
+                                            size * 0.5, size * 0.44, size * 0.54);
+        vg.addColorStop(0, 'rgba(244,241,236,0)');
+        vg.addColorStop(1, 'rgba(244,241,236,1)');
+        ctx.fillStyle = vg;
+        ctx.fillRect(0, 0, size, size);
+        if (ptr.amt <= 0.01) return;
+
+        // screen blooms out from the pointer, matching the WebGL path
+        const radius = ptr.amt * size * 2.10, feather = size * 0.38;
+
+        // wash the paper back over the revealed region so the dots read as a
+        // screen rather than as specks scattered on top of a photograph
+        const wash = ctx.createRadialGradient(ptr.x, ptr.y, Math.max(0, radius - feather),
+                                              ptr.x, ptr.y, Math.max(1, radius));
+        wash.addColorStop(0, 'rgba(244,241,236,1)');
+        wash.addColorStop(1, 'rgba(244,241,236,0)');
+        ctx.fillStyle = wash;
+        ctx.fillRect(0, 0, size, size);
+
         const R = size * 0.30, R2 = R * R;
         for (const c of cells) {
+          const ex = c.cx - ptr.x, ey = c.cy - ptr.y;
+          const dist = Math.hypot(ex, ey);
+          const reveal = clamp((radius - dist) / feather, 0, 1);
+          if (reveal <= 0.01) { c.ox = lerp(c.ox, 0, 0.18); c.oy = lerp(c.oy, 0, 0.18); continue; }
+
           let dx = 0, dy = 0;
-          if (ptr.amt > 0.01) {
-            const vx = c.cx - ptr.x, vy = c.cy - ptr.y, d2 = vx * vx + vy * vy;
-            if (d2 < R2) {
-              const d = Math.sqrt(d2) || 0.001, f = (1 - d / R) ** 2;
-              dx = (vx / d) * f * cell * 2.4 * ptr.amt;
-              dy = (vy / d) * f * cell * 2.4 * ptr.amt;
-            }
+          const d2 = ex * ex + ey * ey;
+          if (d2 < R2) {
+            const d = dist || 0.001, f = (1 - d / R) ** 2;
+            dx = (ex / d) * f * cell * 2.4 * ptr.amt;
+            dy = (ey / d) * f * cell * 2.4 * ptr.amt;
           }
           c.ox = lerp(c.ox, dx, 0.18); c.oy = lerp(c.oy, dy, 0.18);
+
+          ctx.globalAlpha = reveal * reveal * (3 - 2 * reveal);
           ctx.fillStyle = c.col;
           ctx.beginPath();
           ctx.arc(c.cx + c.ox, c.cy + c.oy, c.r, 0, 6.2832);
           ctx.fill();
         }
+        ctx.globalAlpha = 1;
       }
     };
   }
@@ -451,20 +498,55 @@ const Halftone = (() => {
     impl.draw(t);
   }
 
-  if (host) {
-    host.addEventListener('pointermove', e => {
-      const r = cv.getBoundingClientRect();
-      if (ptr.tAmt === 0) { ptr.x = ptr.tx = e.clientX - r.left; ptr.y = ptr.ty = e.clientY - r.top; }
-      ptr.tx = e.clientX - r.left;
-      ptr.ty = e.clientY - r.top;
+  /* The screen is hover-revealed, which would make it invisible on touch and
+     easy to miss on desktop. So the plate demonstrates itself once, the first
+     time it is seen, then hands control back to the pointer. */
+  let hovering = false, demoed = false, demoTimer = null;
+  function demo() {
+    if (demoed || REDUCED || !impl) return;
+    demoed = true;
+    demoTimer = setTimeout(() => {
+      if (hovering) return;
+      ptr.x = ptr.tx = size * 0.5;
+      ptr.y = ptr.ty = size * 0.42;
       ptr.tAmt = 1;
+      setTimeout(() => { if (!hovering) ptr.tAmt = 0; }, 1900);
+    }, 850);
+  }
+
+  if (host) {
+    const at = e => {
+      const r = cv.getBoundingClientRect();
+      return [e.clientX - r.left, e.clientY - r.top];
+    };
+    host.addEventListener('pointermove', e => {
+      if (e.pointerType === 'touch') return;          // touch uses tap-to-toggle
+      const [x, y] = at(e);
+      if (!hovering) { ptr.x = ptr.tx = x; ptr.y = ptr.ty = y; }
+      hovering = true;
+      clearTimeout(demoTimer);
+      ptr.tx = x; ptr.ty = y; ptr.tAmt = 1;
     });
-    host.addEventListener('pointerleave', () => { ptr.tAmt = 0; });
+    host.addEventListener('pointerleave', e => {
+      if (e.pointerType === 'touch') return;
+      hovering = false; ptr.tAmt = 0;
+    });
+    // tap toggles the screen on touch devices
+    host.addEventListener('pointerdown', e => {
+      if (e.pointerType !== 'touch') return;
+      const [x, y] = at(e);
+      ptr.tx = x; ptr.ty = y;
+      if (ptr.tAmt === 0) { ptr.x = x; ptr.y = y; }
+      ptr.tAmt = ptr.tAmt > 0.5 ? 0 : 1;
+    }, { passive: true });
   }
   addEventListener('resize', resize);
   if ('IntersectionObserver' in window) {
-    new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: 0.01 }).observe(cv);
-  } else visible = true;
+    new IntersectionObserver(es => {
+      visible = es[0].isIntersecting;
+      if (visible) demo();
+    }, { threshold: 0.35 }).observe(cv);
+  } else { visible = true; }
 
   return { tick, rebuild: resize, get mode() { return impl ? impl.kind : 'none'; } };
 })();

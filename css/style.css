@@ -407,15 +407,33 @@ kbd{
 
 /* ── PORTRAIT PLATE ── */
 .portrait{ position:relative; justify-self:end; width:min(100%, 400px); }
+/* A mounted print: paper mat, hairline bevel, weight that lifts on approach */
 .portrait__frame{
-  position:relative; padding:16px;
-  background:var(--paper-hi);
-  border:1px solid var(--rule);
-  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,
-             0 22px 60px -34px rgba(20,22,26,.42),
-             0 3px 12px -8px rgba(20,22,26,.2);
+  position:relative; padding:clamp(12px,1.5vw,20px);
+  background:linear-gradient(158deg, #FDFCFA 0%, var(--paper-hi) 46%, #F3EFEA 100%);
+  border:1px solid rgba(20,22,26,.15);
+  border-radius:2px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.72) inset,
+    0 1px 2px rgba(20,22,26,.05),
+    0 10px 24px -16px rgba(20,22,26,.30),
+    0 34px 64px -34px rgba(20,22,26,.42);
   transform-style:preserve-3d;
   will-change:transform;
+  transition:box-shadow .6s var(--ease);
+}
+.portrait:hover .portrait__frame{
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.8) inset,
+    0 1px 2px rgba(20,22,26,.05),
+    0 16px 34px -18px rgba(20,22,26,.34),
+    0 48px 88px -40px rgba(20,22,26,.5);
+}
+/* hairline bevel around the image itself */
+.portrait__frame::after{
+  content:""; position:absolute; inset:clamp(12px,1.5vw,20px);
+  box-shadow:0 0 0 1px rgba(20,22,26,.13), 0 1px 3px rgba(20,22,26,.10) inset;
+  pointer-events:none; z-index:2;
 }
 /* matches the shader's PAPER constant so the plate has no visible seam */
 .portrait__crop{
@@ -441,8 +459,12 @@ kbd{
   70%{ top:105%; opacity:1 } 82%,100%{ opacity:0; top:105% }
 }
 
-.cmark{ position:absolute; width:11px; height:11px; opacity:0; transition:opacity .5s var(--ease) .9s; }
+.cmark{
+  position:absolute; width:11px; height:11px; opacity:0; z-index:3;
+  transition:opacity .5s var(--ease) .9s, width .5s var(--ease), height .5s var(--ease);
+}
 .portrait.is-in .cmark{ opacity:1; }
+.portrait:hover .cmark{ width:16px; height:16px; transition-delay:0s; }
 .cmark::before,.cmark::after{ content:""; position:absolute; background:var(--accent); }
 .cmark::before{ width:100%; height:1px; top:0; }
 .cmark::after{ height:100%; width:1px; left:0; }
@@ -652,35 +674,32 @@ kbd{
 .station.is-lit .station__node i{ background:var(--accent); border-color:var(--accent); transform:scale(1.15); }
 
 /* ── ORG LOGOS ──────────────────────────────────────────
-   Real marks, held back to ink-grey so they never fight the
-   palette, then released to full colour on hover.
+   Full colour by default. `multiply` drops the white ground
+   that most supplied marks ship with, so they sit ON the paper
+   stock rather than in a floating white box.
    ─────────────────────────────────────────────────────── */
 .orglogo{
-  height:32px; margin-bottom:14px;
-  display:flex; align-items:center;
+  height:34px; margin-bottom:14px;
+  display:flex; align-items:center; gap:12px;
 }
 .orglogo img{
-  max-height:32px; max-width:158px; width:auto; height:auto;
+  max-height:34px; max-width:158px; width:auto; height:auto;
   object-fit:contain; object-position:left center;
-  filter:grayscale(1) contrast(1.08);
-  opacity:.55;
-  transition:filter .55s var(--ease), opacity .55s var(--ease), transform .55s var(--ease);
+  mix-blend-mode:multiply;
+  transition:transform .55s var(--ease), filter .55s var(--ease);
 }
 .station:hover .orglogo img,
-.edu:hover .orglogo img,
-.orglogo img:hover{ filter:none; opacity:1; transform:translateY(-1px); }
+.edu:hover .orglogo img{ transform:translateY(-2px); filter:saturate(1.06); }
 
-/* fallback monogram for orgs with no published mark */
-.orglogo--mark span{
-  display:grid; place-items:center;
-  width:32px; height:32px;
-  border:1px solid var(--rule-hard);
-  font-family:var(--serif); font-size:.92rem; letter-spacing:.03em;
-  color:var(--ink-3);
-  transition:border-color .5s var(--ease), color .5s var(--ease), background-color .5s var(--ease);
+/* crests and seals need vertical room the wordmarks don't */
+.orglogo--tall{ height:52px; }
+.orglogo--tall img{ max-height:52px; max-width:120px; }
+
+/* two marks for one org (Foundation for Smart Manufacturing · IIT Delhi) */
+.orglogo--pair img{ max-width:112px; }
+.orglogo__div{
+  width:1px; height:22px; background:var(--rule-hard); flex:none; opacity:.55;
 }
-.station:hover .orglogo--mark span,
-.edu:hover .orglogo--mark span{ border-color:var(--accent); color:var(--accent); }
 
 .station__when{ color:var(--ink-4); margin-bottom:10px; }
 .station__org{
@@ -938,18 +957,11 @@ kbd{
   align-self:flex-start; margin-top:-1px;
 }
 .certlogo img{
-  max-width:74px; max-height:26px; width:auto; height:auto; object-fit:contain;
-  filter:grayscale(1) contrast(1.08); opacity:.55;
-  transition:filter .5s var(--ease), opacity .5s var(--ease);
+  max-width:74px; max-height:28px; width:auto; height:auto; object-fit:contain;
+  mix-blend-mode:multiply;
+  transition:transform .5s var(--ease), filter .5s var(--ease);
 }
-.certs li:hover .certlogo img{ filter:none; opacity:1; }
-.certlogo--mark b{
-  display:grid; place-items:center; width:30px; height:30px;
-  border:1px solid var(--rule-hard); font-family:var(--serif);
-  font-weight:400; font-size:.84rem; color:var(--ink-3);
-  transition:border-color .5s var(--ease), color .5s var(--ease);
-}
-.certs li:hover .certlogo--mark b{ border-color:var(--accent); color:var(--accent); }
+.certs li:hover .certlogo img{ transform:translateY(-1px); filter:saturate(1.06); }
 .certs li b{ display:block; font-weight:500; font-size:1.02rem; letter-spacing:-.005em; }
 .certs li em{ display:block; font-style:normal; color:var(--ink-4); font-size:.88rem; margin-top:2px; }
 .certs li::after{
@@ -1060,6 +1072,80 @@ kbd{
   border-top:1px solid var(--rule); color:var(--ink-4);
 }
 .palette__foot span{ display:flex; align-items:center; gap:5px; }
+
+/* ══════════════════════════════════════════════════════════
+   SMALL SCREENS
+   Additive only — every rule here sits inside a max-width query,
+   so the desktop composition is untouched.
+   ══════════════════════════════════════════════════════════ */
+@media (max-width:900px){
+  html{ -webkit-tap-highlight-color:transparent; }
+  /* anchor jumps must clear the fixed nav */
+  html,body{ scroll-padding-top:calc(var(--nav-h) + 12px); }
+
+  /* the plate is a photograph now, so give it more presence */
+  .portrait{ width:min(100%,330px); }
+  .portrait__cap{ font-size:.6rem; }
+
+  /* tighten the vertical rhythm — mobile pages read longer */
+  .sec{ padding-block:clamp(54px,7vh,90px); }
+  .statement{ padding:clamp(64px,9vh,120px) 0 clamp(44px,6vh,80px); }
+  .sechead{ margin-bottom:clamp(30px,5vh,54px); }
+
+  /* stat grid gets breathing room instead of cramped columns */
+  .mstat{ padding:14px 15px; }
+  .mstat b{ font-size:1.4rem; }
+
+  .ticker{ padding-block:10px; }
+  .chips span{ padding:6px 11px; }
+}
+
+@media (max-width:620px){
+  /* the full wordmark is long; scale it rather than truncate it */
+  .nav{ gap:10px; }
+  .nav__mark{ gap:8px; min-width:0; }
+  .nav__wordmark{ min-width:0; }
+  .nav__wordmark b{
+    font-size:.74rem; letter-spacing:0; line-height:1.15;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .nav__mark svg{ width:28px; height:28px; flex:none; }
+  .btn-ghost{ padding:8px 13px; font-size:.8rem; }
+
+  /* certification rows: give the title back its width */
+  .certlogo{ width:54px; }
+  .certlogo img{ max-width:54px; max-height:24px; }
+  .certs li{ gap:11px; padding:14px 0; }
+  .certs li b{ font-size:.96rem; }
+
+  /* two-mark lockups stack rather than squeeze */
+  .orglogo--pair img{ max-width:92px; }
+  .orglogo--pair{ gap:9px; }
+
+  .edu__marks{ gap:16px; }
+  .edu__cgpa b{ font-size:2rem; }
+  .specimen__list dd{ font-size:1.5rem; }
+  .specimen__list > div{ padding:11px 0; }
+
+  /* comfortable tap targets on the one list people actually tap */
+  .flink{ padding:18px 18px; }
+  .palette__list li{ padding:13px 12px; }
+}
+
+@media (max-width:420px){
+  .hero__name{ letter-spacing:-.03em; }
+  .foot__mailin{ letter-spacing:-.03em; }
+  .sechead__idx{ padding-top:.35em; }
+  .metric__grid{ grid-template-columns:1fr; }
+}
+
+/* Touch devices never get :hover, so bake the "revealed" logo state in and
+   drop effects that only exist to reward a cursor. */
+@media (hover:none){
+  .orglogo img,.certlogo img{ transform:none; }
+  .portrait__frame{ transition:none; }
+  .station::before{ display:none; }
+}
 
 /* ══════════════════════════════════════════════════════════
    REDUCED MOTION

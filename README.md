@@ -24,8 +24,8 @@ behaves like printed stock instead of a flat screen.
 | Feature | Where | What it does |
 |---|---|---|
 | **CMYK halftone portrait** | `js/main.js` → `Halftone` | A WebGL fragment shader separates the photo into cyan/magenta/yellow/black and screens each on its own classic offset angle (15° / 75° / 0° / 45°), recombining them subtractively over the paper. Keeps the photograph's real colour while reading as printed matter. |
-| **Fluid pointer lens** | same shader | The pointer drives a displacement field — radial push, tangential swirl, travelling ripple — plus per-separation chromatic aberration and a local rise in screen frequency. Degrades to a 2D canvas colour screen where WebGL is missing. |
-| **Org logos** | `.orglogo` / `.certlogo` | Employer, university and certification marks held back to ink-grey so they never fight the palette, released to full colour on hover. Orgs with no published mark get a typographic monogram in the same rhythm. |
+| **Fluid pointer lens** | same shader | The plate rests as a continuous-tone photograph. The screen blooms outward from the pointer like a loupe travelling over the stock, carrying a displacement field — radial push, tangential swirl, travelling ripple — plus per-separation chromatic aberration and a local rise in screen frequency. Degrades to a 2D canvas colour screen where WebGL is missing. |
+| **Org logos** | `.orglogo` / `.certlogo` | Employer, university and certification marks in full colour, composited with `multiply` so the white ground most of them ship with drops away and they sit *on* the paper stock. |
 | **Blueprint backdrop** | `Blueprint` | Canvas drafting grid with drifting construction circles, a sweeping radius line and a corner datum. Parallaxes to the pointer. |
 | **Smooth scroll** | `Scroll` | Transform-based lerped scrolling. All fixed chrome lives outside `<main>` so it is unaffected. |
 | **Assembly-line timeline** | `#work` | Experience as stations on a line; a rail fills and a carrier travels as you scroll, lighting each node. |
@@ -48,11 +48,26 @@ data URI in `js/portrait.js` so texture upload never trips the canvas-tainting r
 works opened straight from the filesystem, no server needed. 600 px is ample: the screen samples
 roughly 118 dots across, so a larger texture would be thrown away.
 
+Because the screen is hover-revealed it would be invisible on touch and easy to miss on desktop,
+so the plate demonstrates itself once the first time it scrolls into view, then hands control back
+to the pointer. On touch, tapping the plate toggles it.
+
 ## Logos
 
-Fetched from Wikimedia via the MediaWiki API and committed to `assets/logos/`. Avendus Capital,
-Gyan Bharati School and Impact Guru have no retrievable published mark, so they get typographic
-monograms instead — deliberate, and consistent with everything around them.
+`assets/logos/` — Dixon, Havells, LG, IIT Delhi, Michigan, Rice and Macquarie came from Wikimedia
+via the MediaWiki API; Manipal, Gyan Bharati, Avendus, Foundation for Smart Manufacturing and
+Impact Guru were supplied directly and are cropped/keyed to their artwork. The IIT Delhi internship
+carries a two-mark lockup because the organisation genuinely is both.
+
+Everything renders in full colour with `mix-blend-mode: multiply`, which drops the white card most
+logo files carry without needing per-file masking.
+
+## Mobile
+
+The small-screen work is purely additive — every rule lives inside a `max-width` query, so the
+desktop composition is byte-for-byte unchanged. Highlights: the name leads and the plate follows,
+the palette becomes the navigation once the nav links collapse, the long wordmark scales rather
+than truncating, and `@media (hover:none)` drops effects that only exist to reward a cursor.
 
 ## Accessibility & resilience
 

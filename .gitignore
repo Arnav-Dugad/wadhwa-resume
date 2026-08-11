@@ -7,3 +7,10 @@ node_modules/
 # large local source imagery (the 860px assets/portrait.jpg is what the site uses)
 ChatGPT Image*.png
 assets/*upscayl*
+
+# original supplied logo sources (processed copies live in assets/logos/)
+/avendus.png
+/fsmlogo.png
+/gyan.png
+/impactguru.jpeg
+/MANIPAL-INSTITUTE-OF-TECHNOLOGY.webp
