@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Aditya Shankar Wadhwa — Mechatronics Engineer</title>
+<meta name="description" content="Aditya Shankar Wadhwa — Mechatronics engineer working across the factory floor and the control layer. Production, automation, augmented reality and IoT." />
+<meta name="theme-color" content="#F4F1EC" />
+<meta name="author" content="Aditya Shankar Wadhwa" />
+
+<meta property="og:type" content="profile" />
+<meta property="og:title" content="Aditya Shankar Wadhwa — Mechatronics Engineer" />
+<meta property="og:description" content="Between the machine and the code. Production, automation, AR and IoT." />
+<meta property="og:image" content="assets/aditya.jpg" />
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23F4F1EC'/><text y='.9em' x='50%25' text-anchor='middle' font-size='68' font-family='Georgia,serif' fill='%23C8442A'>A</text></svg>" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ══════════════ PAPER GRAIN + VIGNETTE ══════════════ -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ══════════════ PRELOADER ══════════════ -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader__inner">
+    <div class="loader__meta">
+      <span class="mono" data-load-label>CALIBRATING</span>
+      <span class="mono" id="loadPct">000</span>
+    </div>
+    <div class="loader__bar"><i id="loadBar"></i></div>
+    <div class="loader__name">
+      <span class="lm"><b>Aditya</b></span>
+      <span class="lm"><b>Shankar</b></span>
+      <span class="lm"><b>Wadhwa</b></span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CUSTOM CURSOR ══════════════ -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <div class="cursor__ring"><span class="cursor__label mono"></span></div>
+  <div class="cursor__dot"></div>
+</div>
+
+<!-- ══════════════ AXIS READOUT (scroll rail) ══════════════ -->
+<aside class="axis" id="axis" aria-hidden="true">
+  <div class="axis__track"><i id="axisFill"></i></div>
+  <div class="axis__ticks" id="axisTicks"></div>
+  <div class="axis__readout mono"><span id="axisPct">00</span><em>%</em></div>
+</aside>
+
+<!-- ══════════════ NAV ══════════════ -->
+<header class="nav" id="nav">
+  <a class="nav__mark" href="#top" data-cursor="top" aria-label="Aditya Shankar Wadhwa — top">
+    <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true">
+      <circle cx="20" cy="20" r="18.5" class="mk-ring"/>
+      <path d="M11 27 L20 12 L29 27" class="mk-a"/>
+      <path d="M15.2 22 L24.8 22" class="mk-bar"/>
+    </svg>
+    <span class="nav__wordmark">
+      <b>A. S. Wadhwa</b>
+      <i class="mono">MECHATRONICS</i>
+    </span>
+  </a>
+
+  <nav class="nav__links" aria-label="Sections">
+    <a href="#work" data-nav="work"><span class="mono">01</span> Work</a>
+    <a href="#metric" data-nav="metric"><span class="mono">02</span> Impact</a>
+    <a href="#projects" data-nav="projects"><span class="mono">03</span> Projects</a>
+    <a href="#stack" data-nav="stack"><span class="mono">04</span> Stack</a>
+    <a href="#credentials" data-nav="credentials"><span class="mono">05</span> Credentials</a>
+  </nav>
+
+  <div class="nav__act">
+    <button class="kbd-btn mono" id="paletteOpen" data-cursor="open" aria-label="Open command palette and section menu">
+      <svg class="kbd-btn__ico" viewBox="0 0 18 18" width="15" height="15" aria-hidden="true">
+        <circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="m12.2 12.2 3.6 3.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <span>Search</span><kbd>⌘</kbd><kbd>K</kbd>
+    </button>
+    <a class="btn-ghost" href="assets/AdityaShankarWadhwa_Resume.pdf" download data-cursor="pdf">
+      <span>Résumé</span>
+      <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M8 1v10M4 7.5 8 11.5 12 7.5M2 14.5h12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</header>
+
+<main id="top" data-scroll-root>
+
+<!-- ══════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <canvas class="hero__blueprint" id="blueprint" aria-hidden="true"></canvas>
+
+  <div class="hero__grid">
+
+    <div class="hero__lead">
+      <div class="eyebrow" data-reveal>
+        <span class="eyebrow__dot"></span>
+        <span class="mono">MANIPAL INSTITUTE OF TECHNOLOGY · B.TECH ’27</span>
+      </div>
+
+      <h1 class="hero__name" aria-label="Aditya Shankar Wadhwa">
+        <span class="line"><span class="w" data-split>Aditya</span></span>
+        <span class="line"><span class="w" data-split>Shankar</span></span>
+        <span class="line"><span class="w w--accent" data-split>Wadhwa</span></span>
+      </h1>
+
+      <div class="hero__rule" data-draw></div>
+
+      <p class="hero__blurb" data-reveal data-delay="1">
+        I work in the gap between the machine and the code — where a
+        <em>ladder-logic rung</em> becomes a sorted part, and a line balanced by hand
+        becomes <em>130 more units an hour</em>.
+      </p>
+
+      <div class="hero__cta" data-reveal data-delay="2">
+        <a class="btn-solid" href="#work" data-cursor="scroll">
+          <span class="btn-solid__t">See the work</span>
+          <span class="btn-solid__t btn-solid__t--dup" aria-hidden="true">See the work</span>
+          <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><path d="M10 3v14M4.5 11.5 10 17l5.5-5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="btn-line" href="mailto:adityaswadhwa@gmail.com" data-cursor="mail">adityaswadhwa@gmail.com</a>
+      </div>
+    </div>
+
+    <!-- ── Portrait: live halftone render ── -->
+    <figure class="portrait" id="portrait">
+      <div class="portrait__frame">
+        <div class="portrait__crop">
+          <canvas id="halftone" aria-label="Portrait of Aditya Shankar Wadhwa, rendered as a halftone dot matrix"></canvas>
+          <div class="portrait__scan" aria-hidden="true"></div>
+        </div>
+
+        <!-- drafting corner marks -->
+        <span class="cmark cmark--tl" aria-hidden="true"></span>
+        <span class="cmark cmark--tr" aria-hidden="true"></span>
+        <span class="cmark cmark--bl" aria-hidden="true"></span>
+        <span class="cmark cmark--br" aria-hidden="true"></span>
+
+        <!-- dimension line -->
+        <div class="dimline" aria-hidden="true">
+          <span class="dimline__cap"></span>
+          <span class="dimline__bar"></span>
+          <span class="dimline__cap"></span>
+          <em class="mono">SUBJECT 01</em>
+        </div>
+      </div>
+      <figcaption class="portrait__cap mono">
+        <span>FIG. 1 — A. S. WADHWA</span>
+        <span class="portrait__hint">MOVE CURSOR OVER PLATE</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <!-- ── Ticker ── -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__row" id="tickerRow">
+      <span class="ticker__set">
+        <b>Industrial Automation</b><i>◆</i><b>PLC &amp; Ladder Logic</b><i>◆</i><b>Augmented Reality</b><i>◆</i>
+        <b>ROS2</b><i>◆</i><b>Computer Vision</b><i>◆</i><b>IoT Telemetry</b><i>◆</i><b>Line Balancing</b><i>◆</i>
+        <b>Root Cause Analysis</b><i>◆</i>
+      </span>
+    </div>
+  </div>
+
+  <a class="scrollcue" href="#work" aria-label="Scroll to work">
+    <span class="mono">SCROLL</span>
+    <span class="scrollcue__line"><i></i></span>
+  </a>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     STATEMENT
+══════════════════════════════════════════════════ -->
+<section class="statement" id="statement">
+  <div class="wrap statement__grid">
+    <div class="statement__main">
+      <p class="statement__body" data-words>
+        Five internships across four industries — smartphones, refrigeration, electricals and capital
+        markets — taught me one thing that a lecture hall cannot: a factory is a system that argues
+        back. My job is to listen to it in the language it speaks — sensors, takt time, defect rates —
+        and then answer in code.
+      </p>
+      <div class="statement__sig">
+        <span class="mono">A. S. W.</span>
+        <svg class="sig" viewBox="0 0 220 60" aria-hidden="true">
+          <path d="M6 44c18-30 30-32 34-16s-6 26 2 28 20-16 26-30 12-20 16-8-4 26 4 28 16-12 22-26 14-18 16-6-2 22 6 24 20-10 28-24" pathLength="1"/>
+        </svg>
+      </div>
+    </div>
+
+    <aside class="specimen" data-reveal>
+      <h3 class="specimen__h mono">At a glance</h3>
+      <dl class="specimen__list">
+        <div><dt class="mono">Internships</dt><dd data-count-from="0" data-count-to="5">5</dd></div>
+        <div><dt class="mono">Projects shipped</dt><dd data-count-from="0" data-count-to="4">4</dd></div>
+        <div><dt class="mono">Certifications</dt><dd data-count-from="0" data-count-to="5">5</dd></div>
+        <div><dt class="mono">Graduates</dt><dd>2027</dd></div>
+        <div><dt class="mono">Discipline</dt><dd class="sm">Mechatronics</dd></div>
+        <div><dt class="mono">Based</dt><dd class="sm">Udupi · New Delhi</dd></div>
+      </dl>
+    </aside>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     01 — WORK / ASSEMBLY LINE TIMELINE
+══════════════════════════════════════════════════ -->
+<section class="sec sec--work" id="work" data-axis="Work">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sechead__idx mono">01</span>
+      <h2 class="sechead__t" data-reveal>Stations on the line</h2>
+      <span class="sechead__rule" data-draw></span>
+      <p class="sechead__note mono" data-reveal>FIVE ROLES · 2024 → 2026</p>
+    </div>
+
+    <div class="line" id="line">
+      <div class="line__rail" aria-hidden="true">
+        <i class="line__fill" id="lineFill"></i>
+        <span class="line__carrier" id="lineCarrier">
+          <svg viewBox="0 0 24 24" width="15" height="15"><path d="M12 2 21 7v10l-9 5-9-5V7z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 12 21 7M12 12v10M12 12 3 7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        </span>
+      </div>
+
+      <article class="station" data-station data-cursor="expand">
+        <div class="station__node" aria-hidden="true"><i></i></div>
+        <header class="station__head">
+          <div class="station__when mono">JUN 2026 — JUL 2026</div>
+          <h3 class="station__org">Dixon Technologies</h3>
+          <div class="station__role">Production Intern</div>
+        </header>
+        <div class="station__body">
+          <p>Supported <b>Google Pixel</b> smartphone assembly through root-cause analysis, fault
+          investigation, and quality &amp; reliability testing. Worked with cross-functional teams to
+          optimise a new SMT line.</p>
+          <div class="chips">
+            <span>Root Cause Analysis</span><span>SMT</span><span>Reliability Testing</span>
+          </div>
+          <div class="station__win">
+            <span class="mono">THROUGHPUT</span>
+            <b>280 → 410 UPH</b>
+            <em class="mono">+46.4%</em>
+          </div>
+        </div>
+      </article>
+
+      <article class="station" data-station data-cursor="expand">
+        <div class="station__node" aria-hidden="true"><i></i></div>
+        <header class="station__head">
+          <div class="station__when mono">DEC 2025 — JAN 2026</div>
+          <h3 class="station__org">Havells India</h3>
+          <div class="station__role">Sales Intern</div>
+        </header>
+        <div class="station__body">
+          <p>Ran field-sales coordination with retailers and distributors, drove product promotion,
+          and read demand trends and channel movement from the ground up.</p>
+          <div class="chips"><span>Channel Sales</span><span>Demand Trends</span><span>Field Ops</span></div>
+        </div>
+      </article>
+
+      <article class="station" data-station data-cursor="expand">
+        <div class="station__node" aria-hidden="true"><i></i></div>
+        <header class="station__head">
+          <div class="station__when mono">JUN 2025 — JUL 2025</div>
+          <h3 class="station__org">LG India</h3>
+          <div class="station__role">Refrigerator Production &amp; Production Engineering Intern</div>
+        </header>
+        <div class="station__body">
+          <p>Traced end-to-end refrigerator assembly in a high-volume plant — sub-assembly
+          integration, <b>takt-time alignment</b>, workstation coordination, line balancing and in-line
+          quality inspection — to map production flow and defect-control mechanisms.</p>
+          <div class="chips"><span>Takt Time</span><span>Line Balancing</span><span>In-line QC</span></div>
+        </div>
+      </article>
+
+      <article class="station" data-station data-cursor="expand">
+        <div class="station__node" aria-hidden="true"><i></i></div>
+        <header class="station__head">
+          <div class="station__when mono">DEC 2024 — JAN 2025</div>
+          <h3 class="station__org">Foundation for Smart Manufacturing, <span class="hl">IIT Delhi</span></h3>
+          <div class="station__role">Augmented Reality Intern</div>
+        </header>
+        <div class="station__body">
+          <p>Built an AR machine-training application in Unity and Vuforia that simulates the hardware
+          components and operational flow of a <b>pipe-bending machine</b> for structured operator learning.</p>
+          <div class="chips"><span>Unity 3D</span><span>Vuforia</span><span>C#</span></div>
+        </div>
+      </article>
+
+      <article class="station" data-station data-cursor="expand">
+        <div class="station__node" aria-hidden="true"><i></i></div>
+        <header class="station__head">
+          <div class="station__when mono">JUN 2024</div>
+          <h3 class="station__org">Avendus Capital <span class="dim">· Public Markets Alternate Strategies LLP</span></h3>
+          <div class="station__role">Stock Market Trainee</div>
+        </header>
+        <div class="station__body">
+          <p>Studied fundamental analysis — financial-ratio evaluation, valuation models and long-term
+          investment frameworks — to assess corporate financial performance.</p>
+          <div class="chips"><span>Valuation</span><span>Financial Ratios</span><span>Equity Research</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     02 — THE METRIC
+══════════════════════════════════════════════════ -->
+<section class="sec sec--metric" id="metric" data-axis="Impact">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sechead__idx mono">02</span>
+      <h2 class="sechead__t" data-reveal>One number worth framing</h2>
+      <span class="sechead__rule" data-draw></span>
+      <p class="sechead__note mono" data-reveal>DIXON TECHNOLOGIES · SMT LINE</p>
+    </div>
+
+    <div class="metric" id="metricBlock">
+      <div class="metric__stage">
+        <!-- animated UPH gauge -->
+        <svg class="gauge" id="gauge" viewBox="0 0 400 212" role="img" aria-label="Units per hour improved from 280 to 410">
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"  stop-color="#16394B"/>
+              <stop offset="62%" stop-color="#C8442A"/>
+              <stop offset="100%" stop-color="#E4632F"/>
+            </linearGradient>
+          </defs>
+          <path class="gauge__track" d="M40 200 A160 160 0 0 1 360 200" pathLength="1"/>
+          <path class="gauge__base"  d="M40 200 A160 160 0 0 1 360 200" pathLength="1" id="gaugeBase"/>
+          <path class="gauge__val"   d="M40 200 A160 160 0 0 1 360 200" pathLength="1" id="gaugeVal"/>
+          <g id="gaugeTicks" class="gauge__ticks"></g>
+          <g id="gaugeNeedle" class="gauge__needle">
+            <line x1="200" y1="200" x2="200" y2="72"/>
+            <circle cx="200" cy="200" r="7"/>
+          </g>
+        </svg>
+
+        <div class="metric__readout">
+          <span class="metric__num" id="uph">280</span>
+          <span class="metric__unit mono">UPH</span>
+        </div>
+      </div>
+
+      <div class="metric__copy">
+        <p class="metric__kicker mono">SURFACE-MOUNT TECHNOLOGY LINE · OPTIMISATION</p>
+        <p class="metric__lead">
+          A new SMT line was running at <b data-count-from="0" data-count-to="280">280</b> units per hour.
+          After cross-functional bottleneck work, it left at
+          <b class="accent" data-count-from="0" data-count-to="410">410</b>.
+        </p>
+        <div class="metric__grid">
+          <div class="mstat"><span class="mono">DELTA</span><b>+130 <i>UPH</i></b></div>
+          <div class="mstat"><span class="mono">GAIN</span><b>+46.4<i>%</i></b></div>
+          <div class="mstat"><span class="mono">PER SHIFT (8H)</span><b>+1,040 <i>units</i></b></div>
+          <div class="mstat"><span class="mono">CYCLE TIME</span><b>12.9 → 8.8 <i>s</i></b></div>
+        </div>
+        <p class="metric__foot mono">DERIVED FROM STATED THROUGHPUT · 3600 ÷ UPH</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     03 — PROJECTS (exploded view)
+══════════════════════════════════════════════════ -->
+<section class="sec sec--projects" id="projects" data-axis="Projects">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sechead__idx mono">03</span>
+      <h2 class="sechead__t" data-reveal>Things built, not described</h2>
+      <span class="sechead__rule" data-draw></span>
+      <p class="sechead__note mono" data-reveal>HOVER TO EXPLODE THE ASSEMBLY</p>
+    </div>
+
+    <div class="projects">
+
+      <article class="proj" data-proj data-cursor="explode">
+        <div class="proj__no mono">P/01</div>
+        <div class="proj__view">
+          <div class="exploded" data-explode>
+            <span class="layer layer--3" style="--d:3">
+              <svg viewBox="0 0 120 90"><rect x="6" y="6" width="108" height="78" rx="3"/><path d="M18 24h84M18 40h84M18 56h56"/></svg>
+            </span>
+            <span class="layer layer--2" style="--d:2">
+              <svg viewBox="0 0 120 90"><rect x="24" y="20" width="72" height="50" rx="2"/><circle cx="42" cy="45" r="7"/><circle cx="78" cy="45" r="7"/><path d="M49 45h22"/></svg>
+            </span>
+            <span class="layer layer--1" style="--d:1">
+              <svg viewBox="0 0 120 90"><path d="M10 70h100"/><rect x="30" y="52" width="18" height="18"/><rect x="62" y="52" width="18" height="18"/><path d="M96 61h10M96 55l6 6-6 6"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="proj__meta">
+          <h3>PLC-Based Part Detection &amp; Sorting System</h3>
+          <p>Optical sensors feed a ladder-logic program that classifies parts in real time on a
+          simulated assembly line — detection, decision and diverter in one loop.</p>
+          <div class="chips"><span>IndraWorks</span><span>PLC</span><span>Ladder Logic</span><span>Optical Sensors</span></div>
+        </div>
+      </article>
+
+      <article class="proj" data-proj data-cursor="explode">
+        <div class="proj__no mono">P/02</div>
+        <div class="proj__view">
+          <div class="exploded" data-explode>
+            <span class="layer layer--3" style="--d:3">
+              <svg viewBox="0 0 120 90"><rect x="10" y="14" width="100" height="62" rx="4"/><path d="M10 26h100"/><circle cx="18" cy="20" r="2"/><circle cx="26" cy="20" r="2"/></svg>
+            </span>
+            <span class="layer layer--2" style="--d:2">
+              <svg viewBox="0 0 120 90"><path d="M36 62 60 26l24 36z"/><path d="M48 44h24"/></svg>
+            </span>
+            <span class="layer layer--1" style="--d:1">
+              <svg viewBox="0 0 120 90"><rect x="44" y="34" width="32" height="24" rx="2"/><path d="M60 34V20M60 58v14M44 46H30M76 46h14"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="proj__meta">
+          <h3>Augmented Reality Machine Training</h3>
+          <p>An industrial training app built solo in Unity and Vuforia: a pipe-bending machine you
+          can walk around, pull apart and run — before you ever touch the real one.</p>
+          <div class="chips"><span>Unity 3D</span><span>Vuforia</span><span>C#</span><span>AR</span></div>
+        </div>
+      </article>
+
+      <article class="proj" data-proj data-cursor="explode">
+        <div class="proj__no mono">P/03</div>
+        <div class="proj__view">
+          <div class="exploded" data-explode>
+            <span class="layer layer--3" style="--d:3">
+              <svg viewBox="0 0 120 90"><rect x="8" y="10" width="104" height="70" rx="3"/></svg>
+            </span>
+            <span class="layer layer--2" style="--d:2">
+              <svg viewBox="0 0 120 90"><path class="spark" d="M16 62 34 48l14 10 16-24 14 18 14-26 12 16"/></svg>
+            </span>
+            <span class="layer layer--1" style="--d:1">
+              <svg viewBox="0 0 120 90"><circle cx="60" cy="34" r="10"/><path d="M60 44v20M50 64h20M56 30v8M64 30v8"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="proj__meta">
+          <h3>IoT Temperature Monitoring &amp; Prediction</h3>
+          <p>Sensor acquisition into live dashboards, with regression-based forecasting that flags
+          anomaly trends before they become downtime.</p>
+          <div class="chips"><span>Python</span><span>Streamlit</span><span>Plotly</span><span>Regression</span></div>
+        </div>
+      </article>
+
+      <article class="proj" data-proj data-cursor="explode">
+        <div class="proj__no mono">P/04</div>
+        <div class="proj__view">
+          <div class="exploded" data-explode>
+            <span class="layer layer--3" style="--d:3">
+              <svg viewBox="0 0 120 90"><rect x="8" y="10" width="104" height="70" rx="3"/><path d="M8 24h104"/></svg>
+            </span>
+            <span class="layer layer--2" style="--d:2">
+              <svg viewBox="0 0 120 90"><rect x="22" y="46" width="12" height="24"/><rect x="42" y="34" width="12" height="36"/><rect x="62" y="40" width="12" height="30"/><rect x="82" y="26" width="12" height="44"/></svg>
+            </span>
+            <span class="layer layer--1" style="--d:1">
+              <svg viewBox="0 0 120 90"><circle cx="60" cy="44" r="18"/><path d="M60 26v18l14 8"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="proj__meta">
+          <h3>Data Visualisation for Business Insights</h3>
+          <p>Interactive dashboards and visual reports built for a Tata Consultancy Services analytics
+          brief — the kind that turn a spreadsheet into a decision.</p>
+          <div class="chips"><span>Excel</span><span>Power BI</span><span>Pandas</span><span>TCS</span></div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     04 — STACK (control panel)
+══════════════════════════════════════════════════ -->
+<section class="sec sec--stack" id="stack" data-axis="Stack">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sechead__idx mono">04</span>
+      <h2 class="sechead__t" data-reveal>The toolchain</h2>
+      <span class="sechead__rule" data-draw></span>
+      <p class="sechead__note mono" data-reveal>LANGUAGES · TOOLS · ROBOTICS · SYSTEMS</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel__col" data-panel>
+        <h3 class="panel__h mono">LANGUAGES</h3>
+        <ul class="tools">
+          <li data-tool><span>C</span><i class="mono">01</i></li>
+          <li data-tool><span>Python</span><i class="mono">02</i></li>
+          <li data-tool><span>C#</span><i class="mono">03</i></li>
+        </ul>
+      </div>
+
+      <div class="panel__col" data-panel>
+        <h3 class="panel__h mono">ROBOTICS &amp; VISION</h3>
+        <ul class="tools">
+          <li data-tool><span>ROS2</span><i class="mono">04</i></li>
+          <li data-tool><span>OpenCV</span><i class="mono">05</i></li>
+          <li data-tool><span>Arduino</span><i class="mono">06</i></li>
+        </ul>
+      </div>
+
+      <div class="panel__col" data-panel>
+        <h3 class="panel__h mono">ENGINEERING TOOLS</h3>
+        <ul class="tools">
+          <li data-tool><span>SolidWorks</span><i class="mono">07</i></li>
+          <li data-tool><span>MATLAB · Simulink</span><i class="mono">08</i></li>
+          <li data-tool><span>Unity 3D</span><i class="mono">09</i></li>
+          <li data-tool><span>Vuforia Engine</span><i class="mono">10</i></li>
+          <li data-tool><span>ThingSpeak</span><i class="mono">11</i></li>
+          <li data-tool><span>VS Code</span><i class="mono">12</i></li>
+          <li data-tool><span>Excel</span><i class="mono">13</i></li>
+        </ul>
+      </div>
+
+      <div class="panel__col" data-panel>
+        <h3 class="panel__h mono">SYSTEMS</h3>
+        <ul class="tools">
+          <li data-tool><span>Linux</span><i class="mono">14</i></li>
+          <li data-tool><span>Windows</span><i class="mono">15</i></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Coursework as a magnetic field of tags -->
+    <div class="course">
+      <h3 class="course__h mono" data-reveal>COURSEWORK — DRAG OR HOVER</h3>
+      <div class="course__field" id="courseField">
+        <span data-mag>Digital Design</span>
+        <span data-mag>Mechanics of Robotics Systems</span>
+        <span data-mag>Sensors &amp; Transducers</span>
+        <span data-mag>Design of Machine Elements</span>
+        <span data-mag>Digital Signal Processing</span>
+        <span data-mag>Linear Control Theory</span>
+        <span data-mag>Industrial Automation</span>
+        <span data-mag>Electric Drives</span>
+        <span data-mag>Hydraulic &amp; Pneumatic Systems</span>
+        <span data-mag>Manufacturing Technology</span>
+        <span data-mag>Engineering Economics</span>
+        <span data-mag>Database Systems</span>
+        <span data-mag>Cybersecurity for Automation</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     05 — CREDENTIALS
+══════════════════════════════════════════════════ -->
+<section class="sec sec--cred" id="credentials" data-axis="Credentials">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sechead__idx mono">05</span>
+      <h2 class="sechead__t" data-reveal>Education &amp; credentials</h2>
+      <span class="sechead__rule" data-draw></span>
+      <p class="sechead__note mono" data-reveal>DEGREES · CERTIFICATIONS</p>
+    </div>
+
+    <div class="cred">
+      <div class="cred__edu">
+        <article class="edu" data-reveal>
+          <div class="edu__top">
+            <h3>Manipal Institute of Technology</h3>
+            <span class="mono">2023 — 2027</span>
+          </div>
+          <p class="edu__deg">B.Tech, Mechatronics <span class="dot">·</span> Udupi, India</p>
+          <div class="edu__cgpa">
+            <span class="mono">CGPA</span>
+            <b data-count-from="0" data-count-to="7.18" data-dec="2">7.18</b>
+            <span class="edu__scale mono">/ 10</span>
+            <div class="edu__bar"><i style="--p:71.8%"></i></div>
+          </div>
+        </article>
+
+        <article class="edu" data-reveal data-delay="1">
+          <div class="edu__top">
+            <h3>Gyan Bharati School</h3>
+            <span class="mono">2020 — 2023</span>
+          </div>
+          <p class="edu__deg">New Delhi, India</p>
+          <div class="edu__marks">
+            <div class="mark"><span class="mono">CLASS XII</span><b data-count-from="0" data-count-to="85">85</b><i>%</i>
+              <div class="edu__bar"><i style="--p:85%"></i></div></div>
+            <div class="mark"><span class="mono">CLASS X</span><b data-count-from="0" data-count-to="90">90</b><i>%</i>
+              <div class="edu__bar"><i style="--p:90%"></i></div></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="cred__certs">
+        <h3 class="certs__h mono" data-reveal>CERTIFICATIONS</h3>
+        <ol class="certs">
+          <li data-cert><span class="certs__n mono">01</span>
+            <div><b>Industrial Internet of Things (IIoT)</b><em>University of Michigan</em></div></li>
+          <li data-cert><span class="certs__n mono">02</span>
+            <div><b>Extended Reality</b><em>University of Michigan</em></div></li>
+          <li data-cert><span class="certs__n mono">03</span>
+            <div><b>Finance for Non-Finance Professionals</b><em>Rice University</em></div></li>
+          <li data-cert><span class="certs__n mono">04</span>
+            <div><b>Excel Skills for Business: Essentials</b><em>Macquarie University</em></div></li>
+          <li data-cert><span class="certs__n mono">05</span>
+            <div><b>Fundraising for Social Causes</b><em>Impact Guru, New Delhi</em></div></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     CONTACT / FOOTER
+══════════════════════════════════════════════════ -->
+<footer class="foot" id="contact" data-axis="Contact">
+  <div class="wrap">
+    <p class="foot__eyebrow mono" data-reveal>OPEN TO 2027 GRADUATE ROLES &amp; INTERNSHIPS</p>
+
+    <a class="foot__mail" href="mailto:adityaswadhwa@gmail.com" data-cursor="mail" aria-label="Email Aditya">
+      <span class="foot__mailin" data-split-chars>Let’s talk.</span>
+    </a>
+
+    <div class="foot__links">
+      <a href="mailto:adityaswadhwa@gmail.com" class="flink" data-cursor="mail">
+        <span class="mono">EMAIL</span><b>adityaswadhwa@gmail.com</b>
+      </a>
+      <a href="tel:+919818438350" class="flink" data-cursor="call">
+        <span class="mono">PHONE</span><b>+91 98184 38350</b>
+      </a>
+      <a href="https://linkedin.com/in/adityaswadhwa" target="_blank" rel="noopener" class="flink" data-cursor="open">
+        <span class="mono">LINKEDIN</span><b>/in/adityaswadhwa</b>
+      </a>
+      <a href="assets/AdityaShankarWadhwa_Resume.pdf" download class="flink" data-cursor="pdf">
+        <span class="mono">DOCUMENT</span><b>Résumé — PDF</b>
+      </a>
+    </div>
+
+    <div class="foot__base">
+      <span class="mono">© <span id="yr">2026</span> ADITYA SHANKAR WADHWA</span>
+      <span class="mono foot__loc" id="clock">UDUPI, IN — --:--:--</span>
+      <button class="foot__top mono" data-cursor="top" id="toTop">BACK TO TOP ↑</button>
+    </div>
+  </div>
+</footer>
+
+</main>
+
+<!-- ══════════════ COMMAND PALETTE ══════════════ -->
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette" hidden>
+  <div class="palette__scrim" data-palette-close></div>
+  <div class="palette__box">
+    <div class="palette__field">
+      <svg viewBox="0 0 18 18" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m12.2 12.2 3.3 3.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input id="paletteInput" type="text" placeholder="Jump to a section, or take an action…" autocomplete="off" spellcheck="false" />
+      <kbd class="mono">ESC</kbd>
+    </div>
+    <ul class="palette__list" id="paletteList" role="listbox"></ul>
+    <div class="palette__foot mono">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> select</span>
+      <span><kbd>⌘</kbd><kbd>K</kbd> toggle</span>
+    </div>
+  </div>
+</div>
+
+<script src="js/portrait.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
